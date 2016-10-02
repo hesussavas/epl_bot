@@ -16,6 +16,10 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
+from epl_bot.views import UpdatesRecieveView
+
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^bot/(?P<bot_token>.+)$', UpdatesRecieveView.as_view(),
+        name='webhook'),
 ]

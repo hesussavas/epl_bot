@@ -2,11 +2,7 @@ from django.db import models
 from django.db.models import fields
 from django.db.models.fields.related import ForeignKey
 
-
-class User(models.Model):
-    id = fields.AutoField
-    name = fields.TextField(max_length=255,)
-    telegram_user_id = fields.IntegerField
+from epl_bot.helpers import _check_outcome
 
 
 class Team(models.Model):
@@ -39,21 +35,35 @@ class Fixture(models.Model):
                 date=self.match_datetime.strftime("%c")
             )
 
+    @property
+    def bet_text(self):
+        return u"{home} {ball_unicode} {away}".format(
+            home=self.home_team,
+            ball_unicode=u"\u26BD",
+            away=self.away_team,
+        )
+
+    @property
+    def has_result(self):
+        return self.result != ''
+
 
 class Bet(models.Model):
+    created_time = models.DateTimeField(auto_now_add=True)
+    edited_time = models.DateTimeField(auto_now=True)
     id = fields.AutoField
     fixture = ForeignKey(Fixture)
-    user = ForeignKey(User)
+    user_id = fields.IntegerField()
     predicted_outcome = fields.TextField(max_length=7)
 
     # user can't bet on the same match twice!
-    unique_together = (fixture, user)
+    unique_together = (fixture, user_id)
 
 
 class Score(models.Model):
     id = fields.AutoField
     bet = ForeignKey(Bet)
-    user = ForeignKey(User)
+    user_id = fields.IntegerField(default=0)
     exact_score = fields.NullBooleanField(
         help_text="Indicating, whether user've "
                   "predicted an exact result",

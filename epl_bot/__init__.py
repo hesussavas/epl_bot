@@ -1,0 +1,1 @@
+default_app_config = 'epl_bot.apps.EplBotAppConfig'

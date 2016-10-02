@@ -13,19 +13,22 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import dj_database_url
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+STATIC_ROOT= os.path.join(PROJECT_ROOT,'staticfiles/')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 's@@l@vli84xqn+p7&+(zqyy3l(704+7+7)*h=nh79(j=5x+kgl'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -74,14 +77,9 @@ WSGI_APPLICATION = 'epl_bot.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    'default': dict(dj_database_url.config())
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
@@ -121,8 +119,49 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-BOT_TOKEN = 'INSERT_YOUR_TOKEN_HERE'
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+
+REDIS_URL = os.environ.get('REDIS_URL')
+REDIS_TTL = 60*60*24 # 1 day
 
 BBC_FIXTURES_URL = 'http://www.bbc.com/sport/football/premier-league/fixtures'
+BBC_RESULTS_URL = 'http://www.bbc.com/sport/football/premier-league/results'
 
 FIXTURES_STEP = 5
+
+EXACT_RESULT_POINTS = 3
+EXACT_OUTCOME_POINTS = 1
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s.py %(message)s (PID %(process)d  THREAD%(thread)d)'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'epl_bot': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
+}
+
+HOST_NAME = 'eplbot.herokuapp.com'
+TELEGRAM_WEBHOOK_URL = 'https://api.telegram.org'
